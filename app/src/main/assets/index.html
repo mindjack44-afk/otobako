@@ -14,6 +14,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Not
 .tg{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:12px;padding:12px 14px;margin:12px 0;cursor:pointer}.tg b{flex:1;font-weight:700}.tg small{display:block;color:var(--sub);font-weight:400;font-size:12px}.sw{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none}.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:11px;background:#fff;transition:left .15s}.sw.on{background:var(--acc)}.sw.on::after{left:23px}
 .dim .pl{position:fixed;inset:0;z-index:20;background:#000;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}.dim .pl .vw{width:356px;max-width:100%;height:200px;aspect-ratio:auto}.dim .ctl,.dim #dmb,.dim #npf,.dim nav,.dim main{display:none}.dim .np{max-width:356px;width:100%}.dim .np .t{color:#666;text-align:center}.dim .np .c{color:#444}.dimp{display:none;color:#444;font-size:13px;margin:0}.dim .dimp{display:block}
 .lnp{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:12px}.lnp .t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lnp .c{font-size:12px;color:var(--sub)}.bar{height:6px;background:var(--line);border-radius:3px;margin:10px 0 4px;cursor:pointer}.bar i{display:block;height:100%;background:var(--acc);border-radius:3px;width:0}.tm{display:flex;justify-content:space-between;font-size:11px;color:var(--sub)}.lnp .ctl{justify-content:center;gap:18px}.chips{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.chip{height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:13px;cursor:pointer}.chip.on{background:var(--ink);color:var(--bg)}.row .cnt{font-size:11px;color:var(--acc)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border-radius:12px;padding:4px;margin-bottom:12px}.seg button{height:38px;border:0;border-radius:9px;background:none;color:var(--sub);font:inherit;font-weight:700;cursor:pointer}.seg button.on{background:var(--acc);color:#fff}select.ys{height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:16px;padding:0 12px;flex:1}.pli{font-size:12px;color:var(--sub);margin:-6px 0 10px}
 .vw iframe,#yt{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vw .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--sub);font-size:14px;text-align:center;padding:16px}
 .np{display:flex;align-items:center;gap:8px;margin-top:8px}
@@ -117,6 +118,33 @@ function rows(list,numbered){
   const c=cur();
   return list.map((it,i)=>`<div class="row${c&&c.id===it.id&&queue===list?' cur':''}" data-i="${i}">${numbered?`<span class="n">${i+1}</span>`:''}<img src="${esc(saver&&it.ths?it.ths:it.th)}" alt="" loading="lazy"><div class="m"><div class="t">${esc(it.t)}</div><div class="c">${esc(it.c)}</div></div><button class="ib${isFav(it.id)?' on':''}" data-f="${i}" aria-label="お気に入り">${isFav(it.id)?I.hOn:I.hOff}</button></div>`).join('');
 }
+const CATS=[['邦楽','邦楽 J-POP'],['洋楽','洋楽'],['アニソン','アニソン'],['ボカロ','ボカロ'],['K-POP','K-POP'],['演歌','演歌 歌謡曲']];
+const YEARS=(()=>{const a=[];for(let d=1960;d<=2020;d+=10)a.push([String(d).slice(2)+'年代',String(d).slice(2)+'年代']);const y=[];for(let i=new Date().getFullYear();i>=1970;i--)y.push([i+'年',i+'年']);return{a,y}})();
+let rmode=ls('rmode','now'),ecat=ls('ecat','邦楽'),eyear=ls('eyear','2000年'),era=null,eraLoading=false;
+const eKey=()=>'era:'+ecat+':'+eyear;
+async function loadEra(skip){
+  const c=ls(eKey(),null);
+  if(c&&!skip&&Date.now()-c.at<30*864e5){era=c;return}
+  let cands=c&&c.cands;
+  if(!cands){const q=eyear+' '+CATS.find(x=>x[0]===ecat)[1]+' ヒット曲';
+    const j=await api('search',{part:'snippet',type:'playlist',maxResults:'15',regionCode:'JP',relevanceLanguage:'ja',q});
+    const ids=j.items.map(x=>x.id&&x.id.playlistId).filter(Boolean);if(!ids.length)throw new Error('プレイリストが見つかりません');
+    const d=await api('playlists',{part:'contentDetails,snippet',id:ids.join(',')});
+    cands=d.items.filter(x=>x.contentDetails.itemCount>=15&&x.contentDetails.itemCount<=500).map(x=>({id:x.id,t:dec(x.snippet.title)}));
+    if(!cands.length)cands=d.items.map(x=>({id:x.id,t:dec(x.snippet.title)}));}
+  let ci=skip&&c?((c.ci||0)+1)%cands.length:0;
+  const pl=cands[ci];
+  const r=await api('playlistItems',{part:'snippet',playlistId:pl.id,maxResults:'50'});
+  const items=r.items.map(x=>x.snippet).filter(x=>x.resourceId&&x.resourceId.videoId&&!/^(Private|Deleted) video$/.test(x.title)).map(x=>item(x.resourceId.videoId,{title:x.title,channelTitle:x.videoOwnerChannelTitle||'',thumbnails:x.thumbnails}));
+  era={at:Date.now(),cands,ci,pt:pl.t,items};ss(eKey(),era);
+}
+async function eraGo(skip){eraLoading=true;era=null;render();try{await loadEra(skip)}catch(x){toast(errMsg(x))}eraLoading=false;render()}
+function eraHTML(){
+  const opt=(arr,sel)=>arr.map(([v,l])=>`<option value="${v}"${v===sel?' selected':''}>${l}</option>`).join('');
+  return `<div class="chips">${CATS.map(([k])=>`<button class="chip${k===ecat?' on':''}" data-ec="${k}">${k}</button>`).join('')}</div>
+  <div class="sf"><select class="ys" id="ey"><optgroup label="年代">${opt(YEARS.a,eyear)}</optgroup><optgroup label="年">${opt(YEARS.y,eyear)}</optgroup></select></div>`+
+  (eraLoading?'<div class="msg">探しています…</div>':era&&era.items.length?`<div class="hd"><h2>${esc(eyear)} ${esc(ecat)}</h2><button class="pa" data-all>1曲目から再生</button></div><div class="pli">出典：${esc(era.pt)}　<a href="#" data-enext style="color:var(--acc)">別のリストにする</a></div>`+rows(era.items,true):`<div class="msg">${key?'カテゴリと年代を選んでください':'右下の「設定」でAPIキーを登録してください'}</div>`);
+}
 const B=window.AndroidBridge&&window.AndroidBridge.listAudio?window.AndroidBridge:null;
 let lib=null,lsort=ls('lsort','title'),lfavs=ls('lfavs',[]),counts={},lst={},lastId=null;
 const mmss=ms=>{ms=Math.max(0,ms|0);const t=Math.floor(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
@@ -142,7 +170,7 @@ function localHTML(){
   return np+`<div class="hd"><h2>マイ音楽</h2>${L.length?'<button class="pa" data-lall>この順で再生</button>':''}</div><div class="chips">${[['title','曲名順'],['count','再生回数ランキング'],['fav','お気に入り']].map(([k,l])=>`<button class="chip${lsort===k?' on':''}" data-ls="${k}">${l}</button>`).join('')}</div>`+
    (rowsH||`<div class="msg">${!lib.length?'音楽ファイルが見つかりません。<br>MP3などを「Music」フォルダに入れてください':lsort==='count'?'まだ再生した曲がありません':'♡を押した曲がここに出ます'}</div>`)+'<p style="color:var(--sub);font-size:12px;margin-top:16px">マイ音楽は通信なし・画面を消しても再生が続きます。通知欄から操作できます。</p>';
 }
-function curList(){return view==='rank'?rank||[]:view==='search'?results:view==='fav'?favs:[]}
+function curList(){return view==='rank'?(rmode==='era'?(era?era.items:[]):rank||[]):view==='search'?results:view==='fav'?favs:[]}
 function render(){
   for(const b of $('nav').children)b.classList.toggle('on',b.dataset.v===view);
   const m=$('main');
@@ -158,7 +186,9 @@ function render(){
     (results.length?`<div class="hd"><h2 style="font-size:16px;color:var(--sub)">「${esc(lastQ)}」の結果</h2><button class="pa" data-all>全部再生</button></div>`+rows(results,false):`<div class="msg">${loading?'検索中…':key?'聴きたい曲を検索してください':'右下の「設定」でAPIキーを登録してください'}</div>`);
     return}
   if(view==='fav'){m.innerHTML=`<div class="hd"><h2>お気に入り</h2>${favs.length?'<button class="pa" data-all>全部再生</button>':''}</div>`+(rows(favs,false)||'<div class="msg">曲の♡を押すとここに追加されます</div>');return}
-  m.innerHTML=`<div class="hd"><h2>音楽ランキング</h2>${rank&&rank.length?'<button class="pa" data-all>1位から再生</button>':''}</div>`+(rank?rows(rank,true)||'<div class="msg">データがありません</div>':`<div class="msg">${key?'読み込み中…':'右下の「設定」でAPIキーを登録してください'}</div>`);
+  const seg=`<div class="seg"><button data-rm="now" class="${rmode==='now'?'on':''}">今の人気</button><button data-rm="era" class="${rmode==='era'?'on':''}">年代別</button></div>`;
+  if(rmode==='era'){m.innerHTML=seg+eraHTML();return}
+  m.innerHTML=seg+`<div class="hd"><h2>音楽ランキング</h2>${rank&&rank.length?'<button class="pa" data-all>1位から再生</button>':''}</div>`+(rank?rows(rank,true)||'<div class="msg">データがありません</div>':`<div class="msg">${key?'読み込み中…':'右下の「設定」でAPIキーを登録してください'}</div>`);
 }
 function drawNP(){
   const c=cur();$('npt').firstChild.textContent=c?c.t:'—';$('npc').textContent=c?c.c:'';
@@ -192,6 +222,9 @@ const tag=document.createElement('script');tag.src='https://www.youtube.com/ifra
 $('nav').onclick=async e=>{const b=e.target.closest('button');if(!b)return;view=b.dataset.v;if(view==='local'){loadLib();lpoll()}render();window.scrollTo(0,0);
   if(view==='rank'&&!rank&&key){try{await loadRank();render()}catch(x){$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`}}};
 $('main').addEventListener('click',e=>{
+  const rm=e.target.closest('[data-rm]');if(rm){rmode=rm.dataset.rm;ss('rmode',rmode);render();if(rmode==='era'&&!era&&key)eraGo(false);return}
+  const ec=e.target.closest('[data-ec]');if(ec){ecat=ec.dataset.ec;ss('ecat',ecat);eraGo(false);return}
+  if(e.target.closest('[data-enext]')){e.preventDefault();eraGo(true);return}
   if(e.target.id==='lperm'){B.requestAudioPerm();return}
   const ls_=e.target.closest('[data-ls]');if(ls_){lsort=ls_.dataset.ls;ss('lsort',lsort);render();return}
   const lf=e.target.closest('[data-lf]');if(lf){e.stopPropagation();const id=+lf.dataset.lf;lfavs=lfavs.includes(id)?lfavs.filter(x=>x!==id):[id,...lfavs];ss('lfavs',lfavs);render();return}
@@ -206,6 +239,7 @@ $('main').addEventListener('click',e=>{
   if(e.target.closest('[data-all]')){playList(view==='fav'?favs.slice():list,0);return}
   const r=e.target.closest('.row');if(r)playList(view==='fav'?favs.slice():list,+r.dataset.i);
 });
+$('main').addEventListener('change',e=>{if(e.target.id==='ey'){eyear=e.target.value;ss('eyear',eyear);eraGo(false)}});
 $('main').addEventListener('submit',async e=>{e.preventDefault();const q=$('q').value.trim();if(!q)return;$('q').blur();loading=true;results=[];lastQ=q;render();
   try{await doSearch(q)}catch(x){toast(errMsg(x))}loading=false;render()});
 $('ply').onclick=()=>{if(!cur()){const l=curList();if(l.length)playList(view==='fav'?favs.slice():l,0);else toast('曲を選んでください');return}if(!pReady)return;playing?player.pauseVideo():player.playVideo()};
@@ -222,6 +256,7 @@ window.andBack=()=>{if(dimOn){setDim(false);return true}if(view!=='rank'){view='
 
 function applySaver(){document.body.classList.toggle('saver',saver)}
 applySaver();drawNP();render();
+if(key&&rmode==='era'){era=ls(eKey(),null)}
 if(!key){view='set';render()}else loadRank().then(render).catch(x=>{if(view==='rank')$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`});
 }
 </script>
