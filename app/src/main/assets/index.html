@@ -13,6 +13,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Not
 .saver .vw{width:356px;max-width:100%;height:200px;aspect-ratio:auto;margin:0 auto}
 .tg{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:12px;padding:12px 14px;margin:12px 0;cursor:pointer}.tg b{flex:1;font-weight:700}.tg small{display:block;color:var(--sub);font-weight:400;font-size:12px}.sw{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none}.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:11px;background:#fff;transition:left .15s}.sw.on{background:var(--acc)}.sw.on::after{left:23px}
 .dim .pl{position:fixed;inset:0;z-index:20;background:#000;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}.dim .pl .vw{width:356px;max-width:100%;height:200px;aspect-ratio:auto}.dim .ctl,.dim #dmb,.dim #npf,.dim nav,.dim main{display:none}.dim .np{max-width:356px;width:100%}.dim .np .t{color:#666;text-align:center}.dim .np .c{color:#444}.dimp{display:none;color:#444;font-size:13px;margin:0}.dim .dimp{display:block}
+.lnp{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:12px}.lnp .t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lnp .c{font-size:12px;color:var(--sub)}.bar{height:6px;background:var(--line);border-radius:3px;margin:10px 0 4px;cursor:pointer}.bar i{display:block;height:100%;background:var(--acc);border-radius:3px;width:0}.tm{display:flex;justify-content:space-between;font-size:11px;color:var(--sub)}.lnp .ctl{justify-content:center;gap:18px}.chips{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.chip{height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:13px;cursor:pointer}.chip.on{background:var(--ink);color:var(--bg)}.row .cnt{font-size:11px;color:var(--acc)}
 .vw iframe,#yt{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vw .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--sub);font-size:14px;text-align:center;padding:16px}
 .np{display:flex;align-items:center;gap:8px;margin-top:8px}
@@ -42,7 +43,7 @@ main{padding:12px}
 .msg{color:var(--sub);text-align:center;padding:40px 12px;font-size:14px}
 .st p{color:var(--sub);font-size:14px}.st ol{color:var(--sub);font-size:14px;padding-left:20px}
 .st a{color:var(--acc)}
-nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:#100e17;border-top:1px solid var(--line);z-index:6}
+nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:#100e17;border-top:1px solid var(--line);z-index:6}
 nav button{height:64px;border:0;background:none;color:var(--sub);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
 nav button.on{color:var(--acc)}nav svg{width:24px;height:24px}
 .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;max-width:90vw}
@@ -67,6 +68,7 @@ nav button.on{color:var(--acc)}nav svg{width:24px;height:24px}
   <button data-v="rank"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 14h4v6H4zM10 8h4v12h-4zM16 11h4v9h-4z"/></svg>ランキング</button>
   <button data-v="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>検索</button>
   <button data-v="fav"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.4 4.5 7 4.5c2 0 3.3 1 5 3 1.7-2 3-3 5-3 3.6 0 6 3.5 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>お気に入り</button>
+  <button data-v="local"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 3l12-2v15a3 3 0 1 1-2-2.8V5.4l-8 1.3V19a3 3 0 1 1-2-2.8z"/></svg>マイ音楽</button>
   <button data-v="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3.1 14H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -115,10 +117,36 @@ function rows(list,numbered){
   const c=cur();
   return list.map((it,i)=>`<div class="row${c&&c.id===it.id&&queue===list?' cur':''}" data-i="${i}">${numbered?`<span class="n">${i+1}</span>`:''}<img src="${esc(saver&&it.ths?it.ths:it.th)}" alt="" loading="lazy"><div class="m"><div class="t">${esc(it.t)}</div><div class="c">${esc(it.c)}</div></div><button class="ib${isFav(it.id)?' on':''}" data-f="${i}" aria-label="お気に入り">${isFav(it.id)?I.hOn:I.hOff}</button></div>`).join('');
 }
+const B=window.AndroidBridge&&window.AndroidBridge.listAudio?window.AndroidBridge:null;
+let lib=null,lsort=ls('lsort','title'),lfavs=ls('lfavs',[]),counts={},lst={},lastId=null;
+const mmss=ms=>{ms=Math.max(0,ms|0);const t=Math.floor(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+function loadLib(){if(!B){lib=[];return}if(!B.hasAudioPerm()){lib=null;return}try{lib=JSON.parse(B.listAudio());counts=JSON.parse(B.counts())}catch(e){lib=[]}}
+function lview(){if(!lib)return[];let L=lib.slice();
+  if(lsort==='count')L=L.filter(x=>counts[x.id]).sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0));
+  else if(lsort==='fav')L=L.filter(x=>lfavs.includes(x.id));return L}
+function lplay(L,i){if(!B||!L.length)return;let ids=L.map(x=>x.id),st=i;
+  if(shuf){const f=ids.splice(i,1);for(let k=ids.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[ids[k],ids[j]]=[ids[j],ids[k]]}ids=f.concat(ids);st=0}
+  window.appPause&&appPause();B.lplay(JSON.stringify(ids),st);setTimeout(lpoll,400)}
+function lpoll(){if(!B)return;try{lst=JSON.parse(B.lstate())}catch(e){lst={}}
+  if(lst.id!==lastId){lastId=lst.id;try{counts=JSON.parse(B.counts())}catch(e){}if(view==='local')render();return}
+  const b=$('lbar');if(b){b.firstChild.style.width=(lst.dur?lst.pos/lst.dur*100:0)+'%';$('lpos').textContent=mmss(lst.pos);$('ldur').textContent=mmss(lst.dur);$('lply').innerHTML=lst.playing?I.pause:I.play}}
+setInterval(()=>{if(view==='local'&&!document.hidden)lpoll()},1000);
+window.onPerm=()=>{loadLib();render();if(B&&!B.hasAudioPerm())toast('許可されませんでした。設定アプリから許可してください')};
+function localHTML(){
+  if(!B)return'<div class="msg">アプリ版でのみ使えます</div>';
+  if(lib===null)return'<div class="msg">スマホ内の音楽ファイルを読み込むには許可が必要です<br><br><button class="pa" id="lperm">許可する</button></div>';
+  const c=lib.find(x=>x.id===lst.id);
+  const np=c?`<div class="lnp"><div class="t">${esc(c.t)}</div><div class="c">${esc(c.a)}</div><div class="bar" id="lbar"><i style="width:${lst.dur?lst.pos/lst.dur*100:0}%"></i></div><div class="tm"><span id="lpos">${mmss(lst.pos)}</span><span id="ldur">${mmss(lst.dur)}</span></div><div class="ctl"><button class="ib" data-lc="prev">${'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>'}</button><button class="ib big" id="lply" data-lc="toggle">${lst.playing?I.pause:I.play}</button><button class="ib" data-lc="next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button></div></div>`:'';
+  const L=lview();
+  const rowsH=L.map((x,i)=>`<div class="row${x.id===lst.id?' cur':''}" data-li="${i}">${lsort==='count'?`<span class="n">${i+1}</span>`:''}<div class="m"><div class="t">${esc(x.t)}</div><div class="c">${esc(x.a)}${x.a?'　':''}${mmss(x.d)}${counts[x.id]?` <span class="cnt">${counts[x.id]}回</span>`:''}</div></div><button class="ib${lfavs.includes(x.id)?' on':''}" data-lf="${x.id}">${lfavs.includes(x.id)?I.hOn:I.hOff}</button></div>`).join('');
+  return np+`<div class="hd"><h2>マイ音楽</h2>${L.length?'<button class="pa" data-lall>この順で再生</button>':''}</div><div class="chips">${[['title','曲名順'],['count','再生回数ランキング'],['fav','お気に入り']].map(([k,l])=>`<button class="chip${lsort===k?' on':''}" data-ls="${k}">${l}</button>`).join('')}</div>`+
+   (rowsH||`<div class="msg">${!lib.length?'音楽ファイルが見つかりません。<br>MP3などを「Music」フォルダに入れてください':lsort==='count'?'まだ再生した曲がありません':'♡を押した曲がここに出ます'}</div>`)+'<p style="color:var(--sub);font-size:12px;margin-top:16px">マイ音楽は通信なし・画面を消しても再生が続きます。通知欄から操作できます。</p>';
+}
 function curList(){return view==='rank'?rank||[]:view==='search'?results:view==='fav'?favs:[]}
 function render(){
   for(const b of $('nav').children)b.classList.toggle('on',b.dataset.v===view);
   const m=$('main');
+  if(view==='local'){m.innerHTML=localHTML();return}
   if(view==='set'){m.innerHTML=`<div class="st"><div class="hd"><h2>設定</h2></div>
     <label for="k" style="font-size:13px;color:var(--sub)">YouTube Data API キー</label>
     <div class="sf" style="margin-top:4px"><input id="k" value="${esc(key)}" placeholder="AIza..." autocomplete="off" spellcheck="false"><button id="ks">保存</button></div>
@@ -155,15 +183,22 @@ function mkPlayer(){
   if(player||!window.YT||!YT.Player)return;
   player=new YT.Player('yt',{width:'100%',height:'100%',videoId:pending||'',playerVars:{playsinline:1,rel:0,fs:0,autoplay:1,origin:location.origin},
     events:{onReady:()=>{pReady=true;if(pending){player.loadVideoById(pending);pending=null}},
-      onStateChange:e=>{playing=e.data===1||e.data===3;drawNP();if(e.data===0)next(true)},
+      onStateChange:e=>{playing=e.data===1||e.data===3;if(e.data===1&&B)B.lcmd('pause',0);drawNP();if(e.data===0)next(true)},
       onError:e=>{toast([101,150,100].includes(e.data)?'この曲は再生できないため次へ':'再生エラーのため次へ');setTimeout(()=>next(true),1200)}}});
 }
 window.onYouTubeIframeAPIReady=()=>{if(pending)mkPlayer()};
 const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';tag.onerror=()=>toast('プレーヤーを読み込めません（通信を確認）');document.head.appendChild(tag);
 
-$('nav').onclick=async e=>{const b=e.target.closest('button');if(!b)return;view=b.dataset.v;render();window.scrollTo(0,0);
+$('nav').onclick=async e=>{const b=e.target.closest('button');if(!b)return;view=b.dataset.v;if(view==='local'){loadLib();lpoll()}render();window.scrollTo(0,0);
   if(view==='rank'&&!rank&&key){try{await loadRank();render()}catch(x){$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`}}};
 $('main').addEventListener('click',e=>{
+  if(e.target.id==='lperm'){B.requestAudioPerm();return}
+  const ls_=e.target.closest('[data-ls]');if(ls_){lsort=ls_.dataset.ls;ss('lsort',lsort);render();return}
+  const lf=e.target.closest('[data-lf]');if(lf){e.stopPropagation();const id=+lf.dataset.lf;lfavs=lfavs.includes(id)?lfavs.filter(x=>x!==id):[id,...lfavs];ss('lfavs',lfavs);render();return}
+  const lc=e.target.closest('[data-lc]');if(lc){B.lcmd(lc.dataset.lc,0);setTimeout(lpoll,300);return}
+  if(e.target.closest('#lbar')){const r=$('lbar').getBoundingClientRect();if(lst.dur)B.lcmd('seek',Math.round((e.clientX-r.left)/r.width*lst.dur));setTimeout(lpoll,300);return}
+  if(e.target.closest('[data-lall]')){lplay(lview(),0);return}
+  const lr=e.target.closest('[data-li]');if(lr){lplay(lview(),+lr.dataset.li);return}
   if(e.target.closest('#svt')){saver=!saver;ss('saver',saver);applySaver();render();toast(saver?'データ節約ON（次の曲から反映）':'データ節約OFF');return}
   if(e.target.id==='ks'){key=$('k').value.trim();ss('key',key);rank=null;toast(key?'保存しました':'キーを削除しました');if(key){view='rank';render();loadRank(true).then(render).catch(x=>{$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`})}return}
   const list=curList();

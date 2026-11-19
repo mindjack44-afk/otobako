@@ -1,6 +1,15 @@
 package jp.otobako.app;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.os.Build;
+import android.provider.MediaStore;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.Map;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -62,6 +71,15 @@ public class MainActivity extends Activity {
         });
     }
 
+    private String audioPerm() {
+        return Build.VERSION.SDK_INT >= 33 ? Manifest.permission.READ_MEDIA_AUDIO : Manifest.permission.READ_EXTERNAL_STORAGE;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int rc, String[] p, int[] r) {
+        wv.evaluateJavascript("window.onPerm&&onPerm()", null);
+    }
+
     class Bridge {
         @JavascriptInterface
         public void setBrightness(final float v) {
@@ -70,6 +88,79 @@ public class MainActivity extends Activity {
                 lp.screenBrightness = v;
                 getWindow().setAttributes(lp);
             });
+        }
+
+        @JavascriptInterface
+        public boolean hasAudioPerm() {
+            return checkSelfPermission(audioPerm()) == PackageManager.PERMISSION_GRANTED;
+        }
+
+        @JavascriptInterface
+        public void requestAudioPerm() {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= 33)
+                    requestPermissions(new String[]{audioPerm(), Manifest.permission.POST_NOTIFICATIONS}, 7);
+                else requestPermissions(new String[]{audioPerm()}, 7);
+            });
+        }
+
+        @JavascriptInterface
+        public String listAudio() {
+            JSONArray a = new JSONArray();
+            String[] cols = {MediaStore.Audio.Media._ID, MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.DURATION};
+            try (Cursor c = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cols,
+                    MediaStore.Audio.Media.IS_MUSIC + "!=0", null, MediaStore.Audio.Media.TITLE + " ASC")) {
+                while (c != null && c.moveToNext()) {
+                    JSONObject o = new JSONObject();
+                    String ar = c.getString(2);
+                    o.put("id", c.getLong(0)).put("t", c.getString(1)).put("a", ar == null || "<unknown>".equals(ar) ? "" : ar).put("d", c.getLong(3));
+                    a.put(o);
+                }
+            } catch (Exception e) { }
+            return a.toString();
+        }
+
+        @JavascriptInterface
+        public String counts() {
+            JSONObject o = new JSONObject();
+            try {
+                for (Map.Entry<String, ?> e : getSharedPreferences("counts", MODE_PRIVATE).getAll().entrySet()) o.put(e.getKey(), e.getValue());
+            } catch (Exception x) { }
+            return o.toString();
+        }
+
+        @JavascriptInterface
+        public void lplay(String ids, int index) {
+            try {
+                JSONArray a = new JSONArray(ids);
+                long[] q = new long[a.length()];
+                for (int i = 0; i < q.length; i++) q[i] = a.getLong(i);
+                MusicService.queue = q;
+                MusicService.idx = index;
+                runOnUiThread(() -> startForegroundService(new Intent(MainActivity.this, MusicService.class).setAction("PLAY")));
+            } catch (Exception e) { }
+        }
+
+        @JavascriptInterface
+        public void lcmd(final String c, final int v) {
+            runOnUiThread(() -> {
+                MusicService m = MusicService.inst;
+                if (m == null) return;
+                switch (c) {
+                    case "toggle": m.toggle(); break;
+                    case "pause": m.pause(); break;
+                    case "next": m.next(); break;
+                    case "prev": m.prev(); break;
+                    case "seek": m.seek(v); break;
+                    case "stop": m.stopAll(); break;
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public String lstate() {
+            MusicService m = MusicService.inst;
+            return m == null ? "{}" : m.state();
         }
     }
 }
