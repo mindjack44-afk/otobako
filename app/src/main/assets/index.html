@@ -10,6 +10,8 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Noto Sans JP",sans-serif;padding-bottom:72px}
 .pl{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 12px 8px;border-bottom:1px solid var(--line)}
 .vw{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+.saver .vw{width:356px;max-width:100%;height:200px;aspect-ratio:auto;margin:0 auto}
+.tg{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:12px;padding:12px 14px;margin:12px 0;cursor:pointer}.tg b{flex:1;font-weight:700}.tg small{display:block;color:var(--sub);font-weight:400;font-size:12px}.sw{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none}.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:11px;background:#fff;transition:left .15s}.sw.on{background:var(--acc)}.sw.on::after{left:23px}
 .vw iframe,#yt{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vw .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--sub);font-size:14px;text-align:center;padding:16px}
 .np{display:flex;align-items:center;gap:8px;margin-top:8px}
@@ -80,7 +82,7 @@ const I={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-
  hOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.4 4.5 7 4.5c2 0 3.3 1 5 3 1.7-2 3-3 5-3 3.6 0 6 3.5 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>',
  rep:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg>'};
 
-let key=ls('key',''),favs=ls('favs',[]),rep=ls('rep','all'),shuf=ls('shuf',false);
+let saver=ls('saver',true),key=ls('key',''),favs=ls('favs',[]),rep=ls('rep','all'),shuf=ls('shuf',false);
 let view='rank',rank=null,results=[],lastQ='',queue=[],order=[],pos=-1,player=null,pReady=false,playing=false,pending=null,loading=false;
 
 async function api(path,params){
@@ -88,7 +90,7 @@ async function api(path,params){
   const r=await fetch('https://www.googleapis.com/youtube/v3/'+path+'?'+new URLSearchParams({...params,key}));
   const j=await r.json();if(j.error)throw new Error(j.error.message||'API error');return j;
 }
-const item=(id,s)=>({id,t:dec(s.title||''),c:dec(s.channelTitle||''),th:(s.thumbnails&&(s.thumbnails.medium||s.thumbnails.default)||{}).url||''});
+const item=(id,s)=>({id,t:dec(s.title||''),c:dec(s.channelTitle||''),th:(s.thumbnails&&(s.thumbnails.medium||s.thumbnails.default)||{}).url||'',ths:(s.thumbnails&&s.thumbnails.default||{}).url||''});
 const errMsg=e=>e.message==='NOKEY'?'設定でAPIキーを登録してください':/quota/i.test(e.message)?'今日のAPI利用上限に達しました（明日リセット）':'読み込みエラー：'+e.message;
 
 async function loadRank(force){
@@ -109,7 +111,7 @@ const cur=()=>pos>=0?queue[order[pos]]:null;
 function rows(list,numbered){
   if(!list.length)return'';
   const c=cur();
-  return list.map((it,i)=>`<div class="row${c&&c.id===it.id&&queue===list?' cur':''}" data-i="${i}">${numbered?`<span class="n">${i+1}</span>`:''}<img src="${esc(it.th)}" alt="" loading="lazy"><div class="m"><div class="t">${esc(it.t)}</div><div class="c">${esc(it.c)}</div></div><button class="ib${isFav(it.id)?' on':''}" data-f="${i}" aria-label="お気に入り">${isFav(it.id)?I.hOn:I.hOff}</button></div>`).join('');
+  return list.map((it,i)=>`<div class="row${c&&c.id===it.id&&queue===list?' cur':''}" data-i="${i}">${numbered?`<span class="n">${i+1}</span>`:''}<img src="${esc(saver&&it.ths?it.ths:it.th)}" alt="" loading="lazy"><div class="m"><div class="t">${esc(it.t)}</div><div class="c">${esc(it.c)}</div></div><button class="ib${isFav(it.id)?' on':''}" data-f="${i}" aria-label="お気に入り">${isFav(it.id)?I.hOn:I.hOff}</button></div>`).join('');
 }
 function curList(){return view==='rank'?rank||[]:view==='search'?results:view==='fav'?favs:[]}
 function render(){
@@ -118,6 +120,7 @@ function render(){
   if(view==='set'){m.innerHTML=`<div class="st"><div class="hd"><h2>設定</h2></div>
     <label for="k" style="font-size:13px;color:var(--sub)">YouTube Data API キー</label>
     <div class="sf" style="margin-top:4px"><input id="k" value="${esc(key)}" placeholder="AIza..." autocomplete="off" spellcheck="false"><button id="ks">保存</button></div>
+    <div class="tg" id="svt"><b>データ節約モード<small>プレーヤーを小さくして低画質で再生し、通信量を約1/3〜1/5に抑えます</small></b><span class="sw${saver?' on':''}"></span></div>
     <p>キーの取り方（無料）</p><ol><li>Google Cloud Console（console.cloud.google.com）を開く</li><li>プロジェクトを作成し「YouTube Data API v3」を有効にする</li><li>「認証情報」→「認証情報を作成」→「APIキー」</li><li>表示されたキーをここに貼り付けて保存</li></ol>
     <p>1日の無料枠：検索は約100回、ランキングはほぼ無制限。<br>画面を消したりアプリを閉じたりすると再生は止まります（YouTubeの規約による）。再生中は画面が自動で消えません。</p></div>`;return}
   if(view==='search'){
@@ -159,6 +162,7 @@ const tag=document.createElement('script');tag.src='https://www.youtube.com/ifra
 $('nav').onclick=async e=>{const b=e.target.closest('button');if(!b)return;view=b.dataset.v;render();window.scrollTo(0,0);
   if(view==='rank'&&!rank&&key){try{await loadRank();render()}catch(x){$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`}}};
 $('main').addEventListener('click',e=>{
+  if(e.target.closest('#svt')){saver=!saver;ss('saver',saver);applySaver();render();toast(saver?'データ節約ON（次の曲から反映）':'データ節約OFF');return}
   if(e.target.id==='ks'){key=$('k').value.trim();ss('key',key);rank=null;toast(key?'保存しました':'キーを削除しました');if(key){view='rank';render();loadRank(true).then(render).catch(x=>{$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`})}return}
   const list=curList();
   const f=e.target.closest('[data-f]');if(f){e.stopPropagation();togFav(list[+f.dataset.f]);return}
@@ -175,7 +179,8 @@ $('npf').onclick=()=>togFav(cur());
 window.appPause=()=>{try{if(pReady)player.pauseVideo()}catch(e){}};
 window.andBack=()=>{if(view!=='rank'){view='rank';render();return true}return false};
 
-drawNP();render();
+function applySaver(){document.body.classList.toggle('saver',saver)}
+applySaver();drawNP();render();
 if(!key){view='set';render()}else loadRank().then(render).catch(x=>{if(view==='rank')$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`});
 }
 </script>
