@@ -12,6 +12,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Not
 .vw{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
 .saver .vw{width:356px;max-width:100%;height:200px;aspect-ratio:auto;margin:0 auto}
 .tg{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:12px;padding:12px 14px;margin:12px 0;cursor:pointer}.tg b{flex:1;font-weight:700}.tg small{display:block;color:var(--sub);font-weight:400;font-size:12px}.sw{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none}.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:11px;background:#fff;transition:left .15s}.sw.on{background:var(--acc)}.sw.on::after{left:23px}
+.dim .pl{position:fixed;inset:0;z-index:20;background:#000;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}.dim .pl .vw{width:356px;max-width:100%;height:200px;aspect-ratio:auto}.dim .ctl,.dim #dmb,.dim #npf,.dim nav,.dim main{display:none}.dim .np{max-width:356px;width:100%}.dim .np .t{color:#666;text-align:center}.dim .np .c{color:#444}.dimp{display:none;color:#444;font-size:13px;margin:0}.dim .dimp{display:block}
 .vw iframe,#yt{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vw .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--sub);font-size:14px;text-align:center;padding:16px}
 .np{display:flex;align-items:center;gap:8px;margin-top:8px}
@@ -51,7 +52,8 @@ nav button.on{color:var(--acc)}nav svg{width:24px;height:24px}
 <body>
 <div class="pl">
   <div class="vw"><div id="yt"></div><div class="ph" id="ph">曲を選ぶとここで再生されます</div></div>
-  <div class="np"><div class="t" id="npt">—<div class="c" id="npc"></div></div><button class="ib" id="npf" aria-label="お気に入り"></button></div>
+  <div class="np"><div class="t" id="npt">—<div class="c" id="npc"></div></div><button class="ib" id="dmb" aria-label="減光モード"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 15.3A8.5 8.5 0 0 1 8.7 4a8.5 8.5 0 1 0 11.3 11.3z"/></svg></button><button class="ib" id="npf" aria-label="お気に入り"></button></div>
+  <p class="dimp">減光モード中　画面をタップすると戻ります</p>
   <div class="ctl">
     <button class="ib" id="shf" aria-label="シャッフル"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
     <button class="ib" id="prv" aria-label="前へ"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
@@ -176,8 +178,12 @@ $('nxt').onclick=()=>next(false);$('prv').onclick=prev;
 $('rep').onclick=()=>{rep=rep==='all'?'one':rep==='one'?'off':'all';ss('rep',rep);drawNP();toast({all:'全曲リピート',one:'1曲リピート',off:'リピートなし'}[rep])};
 $('shf').onclick=()=>{shuf=!shuf;ss('shuf',shuf);if(queue.length){const c=order[pos];mkOrder(c)}drawNP();toast(shuf?'シャッフルON':'シャッフルOFF')};
 $('npf').onclick=()=>togFav(cur());
+let dimOn=false;
+function setDim(on){dimOn=on;document.body.classList.toggle('dim',on);try{window.AndroidBridge&&AndroidBridge.setBrightness(on?0.01:-1)}catch(e){}}
+$('dmb').onclick=()=>{if(!cur()){toast('再生中に使えます');return}setDim(true)};
+document.querySelector('.pl').addEventListener('click',e=>{if(dimOn&&!e.target.closest('.vw'))setDim(false)});
 window.appPause=()=>{try{if(pReady)player.pauseVideo()}catch(e){}};
-window.andBack=()=>{if(view!=='rank'){view='rank';render();return true}return false};
+window.andBack=()=>{if(dimOn){setDim(false);return true}if(view!=='rank'){view='rank';render();return true}return false};
 
 function applySaver(){document.body.classList.toggle('saver',saver)}
 applySaver();drawNP();render();

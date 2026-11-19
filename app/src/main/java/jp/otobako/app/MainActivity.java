@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -30,6 +31,7 @@ public class MainActivity extends Activity {
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
+        wv.addJavascriptInterface(new Bridge(), "AndroidBridge");
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView v, WebResourceRequest r) {
@@ -58,5 +60,16 @@ public class MainActivity extends Activity {
         wv.evaluateJavascript("window.andBack?andBack():false", r -> {
             if (!"true".equals(r)) finish();
         });
+    }
+
+    class Bridge {
+        @JavascriptInterface
+        public void setBrightness(final float v) {
+            runOnUiThread(() -> {
+                WindowManager.LayoutParams lp = getWindow().getAttributes();
+                lp.screenBrightness = v;
+                getWindow().setAttributes(lp);
+            });
+        }
     }
 }
