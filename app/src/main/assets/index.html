@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>音箱</title>
+<style>
+:root{--bg:#14121c;--card:#1f1c2b;--line:#2e2a3d;--ink:#f1eef7;--sub:#a29cb3;--acc:#ff4f7a}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Noto Sans JP",sans-serif;padding-bottom:72px}
+.pl{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 12px 8px;border-bottom:1px solid var(--line)}
+.vw{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+.vw iframe,#yt{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vw .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--sub);font-size:14px;text-align:center;padding:16px}
+.np{display:flex;align-items:center;gap:8px;margin-top:8px}
+.np .t{flex:1;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np .c{font-size:12px;color:var(--sub);font-weight:400}
+.ctl{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.ib{width:48px;height:48px;border:0;border-radius:24px;background:none;color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.ib.on{color:var(--acc)}.ib.big{width:60px;height:60px;border-radius:30px;background:var(--acc);color:#fff}
+.ib svg{width:24px;height:24px}.ib.big svg{width:30px;height:30px}
+.ib small{position:absolute;font-size:9px;font-weight:700;margin:16px 0 0 18px}
+main{padding:12px}
+.hd{display:flex;align-items:center;gap:10px;margin:4px 0 10px}
+.hd h2{margin:0;font-size:20px;flex:1}
+.pa{height:40px;padding:0 16px;border-radius:20px;border:0;background:var(--acc);color:#fff;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.sf{display:flex;gap:8px;margin-bottom:10px}
+.sf input,.st input{flex:1;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:0 14px;font:inherit;font-size:16px;width:100%}
+.sf button,.st button{height:46px;padding:0 16px;border-radius:12px;border:0;background:var(--card);color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
+.row{display:flex;align-items:center;gap:10px;padding:6px;border-radius:12px;cursor:pointer}
+.row.cur{background:var(--card)}
+.row .n{width:26px;text-align:right;font-weight:800;color:var(--sub);font-size:15px;flex:none}
+.row.cur .n{color:var(--acc)}
+.row img{width:96px;height:54px;object-fit:cover;border-radius:8px;flex:none;background:var(--card)}
+.row .m{flex:1}
+.row .t{font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row .c{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .ib{width:40px;height:40px;flex:none}
+.msg{color:var(--sub);text-align:center;padding:40px 12px;font-size:14px}
+.st p{color:var(--sub);font-size:14px}.st ol{color:var(--sub);font-size:14px;padding-left:20px}
+.st a{color:var(--acc)}
+nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:#100e17;border-top:1px solid var(--line);z-index:6}
+nav button{height:64px;border:0;background:none;color:var(--sub);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+nav button.on{color:var(--acc)}nav svg{width:24px;height:24px}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;max-width:90vw}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="pl">
+  <div class="vw"><div id="yt"></div><div class="ph" id="ph">曲を選ぶとここで再生されます</div></div>
+  <div class="np"><div class="t" id="npt">—<div class="c" id="npc"></div></div><button class="ib" id="npf" aria-label="お気に入り"></button></div>
+  <div class="ctl">
+    <button class="ib" id="shf" aria-label="シャッフル"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+    <button class="ib" id="prv" aria-label="前へ"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+    <button class="ib big" id="ply" aria-label="再生"></button>
+    <button class="ib" id="nxt" aria-label="次へ"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    <button class="ib" id="rep" aria-label="リピート" style="position:relative"></button>
+  </div>
+</div>
+<main id="main"></main>
+<nav id="nav">
+  <button data-v="rank"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 14h4v6H4zM10 8h4v12h-4zM16 11h4v9h-4z"/></svg>ランキング</button>
+  <button data-v="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>検索</button>
+  <button data-v="fav"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.4 4.5 7 4.5c2 0 3.3 1 5 3 1.7-2 3-3 5-3 3.6 0 6 3.5 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>お気に入り</button>
+  <button data-v="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3.1 14H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.8H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+{
+const $=id=>document.getElementById(id);
+const P='otobako-';
+const ls=(k,d)=>{try{const v=localStorage.getItem(P+k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+const ss=(k,v)=>{try{localStorage.setItem(P+k,JSON.stringify(v))}catch(e){}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dec=s=>{const t=document.createElement('textarea');t.innerHTML=s;return t.value};
+const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2200)};
+const I={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>',pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
+ hOn:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.4 4.5 7 4.5c2 0 3.3 1 5 3 1.7-2 3-3 5-3 3.6 0 6 3.5 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>',
+ hOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.4 4.5 7 4.5c2 0 3.3 1 5 3 1.7-2 3-3 5-3 3.6 0 6 3.5 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>',
+ rep:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg>'};
+
+let key=ls('key',''),favs=ls('favs',[]),rep=ls('rep','all'),shuf=ls('shuf',false);
+let view='rank',rank=null,results=[],lastQ='',queue=[],order=[],pos=-1,player=null,pReady=false,playing=false,pending=null,loading=false;
+
+async function api(path,params){
+  if(!key)throw new Error('NOKEY');
+  const r=await fetch('https://www.googleapis.com/youtube/v3/'+path+'?'+new URLSearchParams({...params,key}));
+  const j=await r.json();if(j.error)throw new Error(j.error.message||'API error');return j;
+}
+const item=(id,s)=>({id,t:dec(s.title||''),c:dec(s.channelTitle||''),th:(s.thumbnails&&(s.thumbnails.medium||s.thumbnails.default)||{}).url||''});
+const errMsg=e=>e.message==='NOKEY'?'設定でAPIキーを登録してください':/quota/i.test(e.message)?'今日のAPI利用上限に達しました（明日リセット）':'読み込みエラー：'+e.message;
+
+async function loadRank(force){
+  const c=ls('rank',null);
+  if(!force&&c&&Date.now()-c.at<3*3600e3){rank=c.items;return}
+  const j=await api('videos',{part:'snippet,status',chart:'mostPopular',videoCategoryId:'10',regionCode:'JP',maxResults:'50'});
+  rank=j.items.filter(v=>v.status&&v.status.embeddable!==false).map(v=>item(v.id,v.snippet));ss('rank',{at:Date.now(),items:rank});
+}
+async function doSearch(q){
+  const j=await api('search',{part:'snippet',type:'video',videoCategoryId:'10',videoEmbeddable:'true',maxResults:'25',regionCode:'JP',q});
+  results=j.items.filter(v=>v.id&&v.id.videoId).map(v=>item(v.id.videoId,v.snippet));lastQ=q;
+}
+
+const isFav=id=>favs.some(f=>f.id===id);
+function togFav(it){if(!it)return;if(isFav(it.id)){favs=favs.filter(f=>f.id!==it.id);toast('お気に入りから外しました')}else{favs.unshift(it);toast('お気に入りに追加しました')}ss('favs',favs);render();drawNP()}
+const cur=()=>pos>=0?queue[order[pos]]:null;
+
+function rows(list,numbered){
+  if(!list.length)return'';
+  const c=cur();
+  return list.map((it,i)=>`<div class="row${c&&c.id===it.id&&queue===list?' cur':''}" data-i="${i}">${numbered?`<span class="n">${i+1}</span>`:''}<img src="${esc(it.th)}" alt="" loading="lazy"><div class="m"><div class="t">${esc(it.t)}</div><div class="c">${esc(it.c)}</div></div><button class="ib${isFav(it.id)?' on':''}" data-f="${i}" aria-label="お気に入り">${isFav(it.id)?I.hOn:I.hOff}</button></div>`).join('');
+}
+function curList(){return view==='rank'?rank||[]:view==='search'?results:view==='fav'?favs:[]}
+function render(){
+  for(const b of $('nav').children)b.classList.toggle('on',b.dataset.v===view);
+  const m=$('main');
+  if(view==='set'){m.innerHTML=`<div class="st"><div class="hd"><h2>設定</h2></div>
+    <label for="k" style="font-size:13px;color:var(--sub)">YouTube Data API キー</label>
+    <div class="sf" style="margin-top:4px"><input id="k" value="${esc(key)}" placeholder="AIza..." autocomplete="off" spellcheck="false"><button id="ks">保存</button></div>
+    <p>キーの取り方（無料）</p><ol><li>Google Cloud Console（console.cloud.google.com）を開く</li><li>プロジェクトを作成し「YouTube Data API v3」を有効にする</li><li>「認証情報」→「認証情報を作成」→「APIキー」</li><li>表示されたキーをここに貼り付けて保存</li></ol>
+    <p>1日の無料枠：検索は約100回、ランキングはほぼ無制限。<br>画面を消したりアプリを閉じたりすると再生は止まります（YouTubeの規約による）。再生中は画面が自動で消えません。</p></div>`;return}
+  if(view==='search'){
+    m.innerHTML=`<form class="sf" id="sf"><input id="q" type="search" placeholder="曲名・アーティスト名" value="${esc(lastQ)}" enterkeyhint="search"><button>検索</button></form>`+
+    (results.length?`<div class="hd"><h2 style="font-size:16px;color:var(--sub)">「${esc(lastQ)}」の結果</h2><button class="pa" data-all>全部再生</button></div>`+rows(results,false):`<div class="msg">${loading?'検索中…':key?'聴きたい曲を検索してください':'右下の「設定」でAPIキーを登録してください'}</div>`);
+    return}
+  if(view==='fav'){m.innerHTML=`<div class="hd"><h2>お気に入り</h2>${favs.length?'<button class="pa" data-all>全部再生</button>':''}</div>`+(rows(favs,false)||'<div class="msg">曲の♡を押すとここに追加されます</div>');return}
+  m.innerHTML=`<div class="hd"><h2>音楽ランキング</h2>${rank&&rank.length?'<button class="pa" data-all>1位から再生</button>':''}</div>`+(rank?rows(rank,true)||'<div class="msg">データがありません</div>':`<div class="msg">${key?'読み込み中…':'右下の「設定」でAPIキーを登録してください'}</div>`);
+}
+function drawNP(){
+  const c=cur();$('npt').firstChild.textContent=c?c.t:'—';$('npc').textContent=c?c.c:'';
+  $('npf').innerHTML=c&&isFav(c.id)?I.hOn:I.hOff;$('npf').classList.toggle('on',!!(c&&isFav(c.id)));
+  $('ply').innerHTML=playing?I.pause:I.play;
+  $('rep').innerHTML=I.rep+(rep==='one'?'<small>1</small>':'');$('rep').classList.toggle('on',rep!=='off');
+  $('shf').classList.toggle('on',shuf);
+}
+
+function mkOrder(start){const n=queue.length;order=[...Array(n).keys()];if(shuf){order.splice(start,1);for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}order.unshift(start);pos=0}else pos=start}
+function playList(list,i){if(!list.length)return;queue=list;mkOrder(i);go()}
+function go(){const c=cur();if(!c)return;$('ph').style.display='none';
+  if(pReady)player.loadVideoById(c.id);else{pending=c.id;mkPlayer()}
+  drawNP();render()}
+function next(auto){if(!queue.length)return;
+  if(auto&&rep==='one'){player.seekTo(0);player.playVideo();return}
+  if(pos<order.length-1)pos++;else if(rep==='all'||!auto){pos=0}else{playing=false;drawNP();return}
+  go()}
+function prev(){if(!queue.length)return;if(pReady&&player.getCurrentTime&&player.getCurrentTime()>4){player.seekTo(0);return}pos=pos>0?pos-1:order.length-1;go()}
+
+function mkPlayer(){
+  if(player||!window.YT||!YT.Player)return;
+  player=new YT.Player('yt',{width:'100%',height:'100%',videoId:pending||'',playerVars:{playsinline:1,rel:0,fs:0,autoplay:1,origin:location.origin},
+    events:{onReady:()=>{pReady=true;if(pending){player.loadVideoById(pending);pending=null}},
+      onStateChange:e=>{playing=e.data===1||e.data===3;drawNP();if(e.data===0)next(true)},
+      onError:e=>{toast([101,150,100].includes(e.data)?'この曲は再生できないため次へ':'再生エラーのため次へ');setTimeout(()=>next(true),1200)}}});
+}
+window.onYouTubeIframeAPIReady=()=>{if(pending)mkPlayer()};
+const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';tag.onerror=()=>toast('プレーヤーを読み込めません（通信を確認）');document.head.appendChild(tag);
+
+$('nav').onclick=async e=>{const b=e.target.closest('button');if(!b)return;view=b.dataset.v;render();window.scrollTo(0,0);
+  if(view==='rank'&&!rank&&key){try{await loadRank();render()}catch(x){$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`}}};
+$('main').addEventListener('click',e=>{
+  if(e.target.id==='ks'){key=$('k').value.trim();ss('key',key);rank=null;toast(key?'保存しました':'キーを削除しました');if(key){view='rank';render();loadRank(true).then(render).catch(x=>{$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`})}return}
+  const list=curList();
+  const f=e.target.closest('[data-f]');if(f){e.stopPropagation();togFav(list[+f.dataset.f]);return}
+  if(e.target.closest('[data-all]')){playList(view==='fav'?favs.slice():list,0);return}
+  const r=e.target.closest('.row');if(r)playList(view==='fav'?favs.slice():list,+r.dataset.i);
+});
+$('main').addEventListener('submit',async e=>{e.preventDefault();const q=$('q').value.trim();if(!q)return;$('q').blur();loading=true;results=[];lastQ=q;render();
+  try{await doSearch(q)}catch(x){toast(errMsg(x))}loading=false;render()});
+$('ply').onclick=()=>{if(!cur()){const l=curList();if(l.length)playList(view==='fav'?favs.slice():l,0);else toast('曲を選んでください');return}if(!pReady)return;playing?player.pauseVideo():player.playVideo()};
+$('nxt').onclick=()=>next(false);$('prv').onclick=prev;
+$('rep').onclick=()=>{rep=rep==='all'?'one':rep==='one'?'off':'all';ss('rep',rep);drawNP();toast({all:'全曲リピート',one:'1曲リピート',off:'リピートなし'}[rep])};
+$('shf').onclick=()=>{shuf=!shuf;ss('shuf',shuf);if(queue.length){const c=order[pos];mkOrder(c)}drawNP();toast(shuf?'シャッフルON':'シャッフルOFF')};
+$('npf').onclick=()=>togFav(cur());
+window.appPause=()=>{try{if(pReady)player.pauseVideo()}catch(e){}};
+window.andBack=()=>{if(view!=='rank'){view='rank';render();return true}return false};
+
+drawNP();render();
+if(!key){view='set';render()}else loadRank().then(render).catch(x=>{if(view==='rank')$('main').innerHTML=`<div class="msg">${esc(errMsg(x))}</div>`});
+}
+</script>
+</body>
+</html>
